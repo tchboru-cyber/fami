@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>TOMOHARU CHAT</title>
+    <style>
+        /* オレンジと黒のサイバーデザイン */
+        body { 
+            font-family: 'Helvetica Neue', Arial, sans-serif; 
+            background: #1a1a1a; 
+            color: #ff9800; 
+            display: flex; 
+            flex-direction: column; 
+            height: 100vh; 
+            margin: 0; 
+        }
+
+        h2 { 
+            text-align: center; 
+            background: #ff9800; 
+            color: #000; 
+            margin: 0; 
+            padding: 15px;
+            font-size: 24px;
+        }
+
+        #messages { 
+            flex: 1; 
+            overflow-y: auto; 
+            padding: 20px; 
+            background: #222;
+        }
+
+        .msg { 
+            background: #333; 
+            padding: 12px 18px; 
+            border-radius: 15px; 
+            margin-bottom: 12px; 
+            border-left: 5px solid #ff9800; 
+            color: #fff; 
+            max-width: 85%;
+            word-wrap: break-word;
+        }
+
+        .input-area { 
+            padding: 20px; 
+            background: #1a1a1a; 
+            display: flex; 
+            gap: 10px; 
+            border-top: 2px solid #ff9800;
+        }
+
+        input { 
+            flex: 1; 
+            padding: 15px; 
+            border: 2px solid #ff9800; 
+            background: #000; 
+            color: #fff; 
+            border-radius: 30px; 
+            outline: none;
+        }
+
+        button { 
+            padding: 10px 25px; 
+            background: #ff9800; 
+            color: black; 
+            border: none; 
+            border-radius: 30px; 
+            font-weight: bold; 
+            cursor: pointer;
+        }
+
+        button:hover { 
+            background: #e68a00; 
+        }
+    </style>
+</head>
+<body>
+
+    <h2>🍊 TOMOHARU CHAT 🍊</h2>
+    
+    <div id="messages"></div>
+
+    <div class="input-area">
+        <input type="text" id="content" placeholder="メッセージを入力...">
+        <button id="send">送信</button>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        // 新しい倉庫（fami-b7f3b）の鍵です！
+        const firebaseConfig = {
+            apiKey: "AIzaSyBo1eDmu0dJD7t2SH06nw8ZwwsIlk21j4k",
+            authDomain: "fami-b7f3b.firebaseapp.com",
+            projectId: "fami-b7f3b",
+            storageBucket: "fami-b7f3b.firebasestorage.app",
+            messagingSenderId: "622136735056",
+            appId: "1:622136735056:web:ce316ba9fa82e51d9f2855",
+            measurementId: "G-BH2SPN20LV",
+            databaseURL: "https://fami-b7f3b-default-rtdb.firebaseio.com/" // 住所から推測したDBのURL
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const dbRef = ref(db, "chat");
+
+        const sendMsg = () => {
+            const msgInput = document.getElementById("content");
+            if(msgInput.value.trim() !== "") {
+                push(dbRef, { 
+                    text: msgInput.value, 
+                    time: Date.now() 
+                });
+                msgInput.value = "";
+            }
+        };
+
+        document.getElementById("send").addEventListener("click", sendMsg);
+        document.getElementById("content").addEventListener("keypress", (e) => {
+            if (e.key === 'Enter') sendMsg();
+        });
+
+        onChildAdded(dbRef, (data) => {
+            const v = data.val();
+            const div = document.createElement("div");
+            div.className = "msg";
+            div.innerText = v.text;
+            document.getElementById("messages").appendChild(div);
+            const box = document.getElementById("messages");
+            box.scrollTop = box.scrollHeight;
+        });
+    </script>
+</body>
+</html>
